@@ -4,7 +4,6 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     require_once('functions.php');
     require_once('dbConnector.php');
     
-
     //2. receive the POST from AT
 	$sessionId     =$_POST['sessionId'];
 	$serviceCode   =$_POST['serviceCode'];
@@ -18,7 +17,6 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     
 	//4. Set the default level of the user
     $level=0;
-
     
     //5. Check if the user is in the db
     $level_arguments = array('phonenumber'=>$phoneNumber);// saving the number as an array so we can check.
