@@ -40,12 +40,12 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
                     echo $response;
                     break;
                 default:
-			    	//6d. You could use this to set a default
-					$response = "END Oops0, something went wrong... \n";
-			  		// Print the response onto the page so that our gateway can read it
-			  		header('Content-type: text/plain');
- 			  		echo $response;	
-			        break;
+                    //6d. You could use this to set a default
+                    $response = "END Oops0, something went wrong... \n";
+                    // Print the response onto the page so that our gateway can read it
+                    header('Content-type: text/plain');
+                    echo $response;	
+                    break;
             }            
         }
         else{
@@ -60,19 +60,77 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
         $sql7 = "UPDATE `users` SET `name` = '$userResponse' WHERE `phonenumber` = '$phoneNumber'";
         $conn->query($sql7);
         $name=getByValue('users','name',$level_arguments);
-        $response = "END Welcome 1 $name";
+        $response = "CON Welcome $name what would you want to check \n";
+        $response .= "1. My Account \n";
+        $response .= "2. My phone number";
+        header('Content-type: text/plain');
         echo $response;
     }
     else{
         //8. Check the level of the user from the DB
         $level=getByValue('session_levels', 'level', $level_arguments);
+        $hop=getByValue('session_levels','hops',$level_arguments);
         $name=getByValue('users','name',$level_arguments);
         switch ($level) {
             case 1:
                 //8a. Use this to serve menus to registered users
                 if(strlen($name)!="") {
-                    $response = "END Welcome 2 $name";
-                    echo $response;                    
+                    switch($hop){
+                        case 0:
+                            $hop++;
+                            $sql8a = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
+                            $conn->query($sql8a);
+                            $response = "CON Welcome back $name what will you view\n";
+                            $response .= "1. My Account \n";
+                            $response .= "2. My phone number";
+                            header('Content-type: text/plain');
+                            echo $response;
+                            break;
+                        case 1:
+                            if ($userResponse==1){
+                                $hop++;
+                                $sql8b = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
+                                $conn->query($sql8b);
+                                $response = "CON Choose account information you want to view \n";
+                                $response .= "1. Account number \n";
+                                $response .= "2. Account balance\n";
+                                $response .= "99. Go back";
+                                header('Content-type: text/plain');
+                                echo $response;
+                            }
+                            elseif ($userResponse==2){
+                                $hop=0;
+                                $sql8c = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
+                                $conn->query($sql8c);
+                                $response = "END Your phone number is $phoneNumber";
+                                header('Content-type: text/plain');
+                                echo $response;
+                            }
+                            break;
+                        case 2:
+                            if ($userResponse==1){
+                                $hop=0;
+                                $sql8d = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
+                                $conn->query($sql8d);
+                                $accountNumber  = "ACC1001";
+                                $response = "END Your account number is $accountNumber";
+                                header('Content-type: text/plain');
+                                echo $response;
+                            }
+                            elseif($userResponse==2){
+                                $hop=0;
+                                $sql8e = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
+                                $conn->query($sql8e);
+                                $balance  = "KES 10,000";
+                                $response = "END Your balance is $balance";
+                            }
+                            elseif($userResponse==99){
+                                $hop-=2;
+                                $sql8f = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
+                                $conn->query($sql8f);
+                            }
+                            break;
+                    }              
                 }                
                 else{
                     //7b. increment level to avoid serving the same menu
