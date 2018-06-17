@@ -42,15 +42,21 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
                     break;
                 default:
 			    	//6e. You could use this to set a default
-					$response = "END Opps1, something went wrong... \n";
+					$response = "END Oops0, something went wrong... \n";
 			  		// Print the response onto the page so that our gateway can read it
 			  		header('Content-type: text/plain');
  			  		echo $response;	
 			        break;
             }            
-        }        
+        }
+        else{
+            $response = "END Oops1, something went wrong... try dialing *384*1404# again \n";
+            // Print the response onto the page so that our gateway can read it
+            header('Content-type: text/plain');
+            echo $response;
+        }     
     }
-    elseif (returnExists('session_levels', $level_arguments) != 0 && strlen(getByValue('users','name',$level_arguments))==0){
+    elseif (returnExists('session_levels', $level_arguments) != 0 && strlen(getByValue('users','name',$level_arguments))==0 && $userResponse!=""){
         //7 post the user input
         $sql7 = "UPDATE `users` SET `name` = '$userResponse' WHERE `phonenumber` = '$phoneNumber'";
         $conn->query($sql7);
@@ -64,50 +70,29 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
         $name=getByValue('users','name',$level_arguments);
         switch ($level) {
             case 1:
-                //7a. Request for name again if name is not valid
+                //7. Use this to serve menus to registered users
                 if(strlen($name)!="") {
                     $response = "END Welcome 2 $name";
                     echo $response;                    
                 }                
                 else{
-                    //7b. increment level to avoid serving the same menu
+                    //7a. increment level to avoid serving the same menu
                     $level++;
-                    //7c. Update the level in the DB
-                    $sql7c = "UPDATE `session_levels` SET `level` = '$level' WHERE `phonenumber` = '$phoneNumber'";
-                    $conn->query($sql7c);
-                    $response = "CON Name not supposed to be empty. Please enter your name \n";
+                    //7b. Request for name again if earlier name is not valid
+                    $response = "CON Name should not be empty. Please enter your name \n";
                     // Print the response onto the page so that our gateway can read it
                     header('Content-type: text/plain');
                     echo $response;                    
                 }
-                break;
-            case 2:
-                //7d. increment level to avoid serving the same menu
-                $level++;
-                //7e. Update level in the DB
-                $sql7e = "UPDATE `session_levels` SET `level` = '$level' WHERE `phonenumber` = '$phoneNumber'";
-                $conn->query($sql7e);
-                //7f. Update the name in the DB
-                $sql7f = "UPDATE `users` SET `name` = '$userResponse' WHERE `phonenumber` = '$phoneNumber'";
-                $conn->query($sql7f);
-                //7g. fetch the name from the DB for use.               
-                $name=getByValue('users','name',$level_arguments);
-                $response = "END Welcome 3 $name";
-                echo $response;
-                break;
-            case 3:
-                //7h. Returning already registered user                
-                $response = "END Welcome 4 $name";
-                echo $response;                    
+                break;       
             default:
-                //7i. Use this to set a default
-                $response = "END Opps2, something went wrong... \n";
+                //7c. Use this to set a default
+                $response = "END Oops2, something went wrong... \n";
                 // Print the response onto the page so that our gateway can read it
                 header('Content-type: text/plain');
                 echo $response;	
                 break;
         }
     }
-
 }
 ?>
