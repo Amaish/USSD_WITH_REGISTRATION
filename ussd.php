@@ -5,8 +5,8 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     require_once('dbConnector.php');
     
     //2. receive the POST from AT
-	$sessionId     =$_POST['sessionId'];
-	$serviceCode   =$_POST['serviceCode'];
+    $sessionId     =$_POST['sessionId'];
+    $serviceCode   =$_POST['serviceCode'];
     $phoneNumber   =$_POST['phoneNumber'];
     $text          =$_POST['text'];
     
