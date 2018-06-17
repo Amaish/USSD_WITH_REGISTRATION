@@ -57,10 +57,10 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     }
     elseif (returnExists('session_levels', $level_arguments) != 0 && strlen(getByValue('users','name',$level_arguments))==0 && $userResponse!=""){
         //7 update the user input into the db
-        $sql7 = "UPDATE `users` SET `name` = '$userResponse' WHERE `phonenumber` = '$phoneNumber'";
-        $conn->query($sql7);
-        $name=getByValue('users','name',$level_arguments);
-        $response = "CON Welcome $name what would you want to check \n";
+        $sql7      = "UPDATE `users` SET `name` = '$userResponse' WHERE `phonenumber` = '$phoneNumber'";
+        $conn      ->query($sql7);
+        $name      =getByValue('users','name',$level_arguments);
+        $response  = "CON Welcome $name what would you want to check \n";
         $response .= "1. My Account \n";
         $response .= "2. My phone number";
         header('Content-type: text/plain');
@@ -68,14 +68,14 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     }
     else{
         //8. Check the level of the user from the DB
-        $level=getByValue('session_levels', 'level', $level_arguments);
-        $hop=getByValue('session_levels','hops',$level_arguments);
-        $name=getByValue('users','name',$level_arguments);
+        $level =getByValue('session_levels', 'level', $level_arguments);
+        $hop   =getByValue('session_levels','hops',$level_arguments);
+        $name  =getByValue('users','name',$level_arguments);
         switch ($level) {
             case 1:
                 //8a. Use this to serve menus to registered users
                 if(strlen($name)!="") {
-                    switch($hop){
+                    switch($hop){                        
                         case 0:
                             $hop++;
                             $sql8a = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
@@ -106,6 +106,15 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
                                 header('Content-type: text/plain');
                                 echo $response;
                             }
+                            else{
+                                $hop=0;
+                                $sql8h = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
+                                $conn->query($sql8h);
+                                $response = "END Oops, something's not right... please try again \n";
+                                // Print the response onto the page so that our gateway can read it
+                                header('Content-type: text/plain');
+                                echo $response;
+                            }
                             break;
                         case 2:
                             if ($userResponse==1){
@@ -129,6 +138,22 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
                                 $sql8f = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
                                 $conn->query($sql8f);
                             }
+                            else{
+                                $hop=0;
+                                $sql8g = "UPDATE `session_levels` SET `hops` = '$hop' WHERE `phonenumber` = '$phoneNumber'";
+                                $conn->query($sql8g);
+                                $response = "END Oops, something's not right... please try again \n";
+                                // Print the response onto the page so that our gateway can read it
+                                header('Content-type: text/plain');
+                                echo $response;	
+                            }
+                            break;
+                        default:
+                            //7d. Use this to set a default
+                            $response = "END Oops, something's not right... \n";
+                            // Print the response onto the page so that our gateway can read it
+                            header('Content-type: text/plain');
+                            echo $response;	
                             break;
                     }              
                 }                
