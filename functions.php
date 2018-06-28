@@ -69,4 +69,24 @@ function ExitRegisteredUser($name)
     return $response;
 }
 
+function accountInformation()
+{
+    $response = "CON Choose account information you want to view \n";
+    $response .= "1. Account number \n";
+    $response .= "2. Account balance";
+    return $response;
+}
+
+function phoneNumber($phoneNumber)
+{
+    $response = "END Your phone number is $phoneNumber";
+    return $response;
+}
+
+function editName()
+{
+    $response = "CON Please enter new name";
+    return $response;
+}
+
 ?>

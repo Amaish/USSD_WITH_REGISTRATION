@@ -24,19 +24,27 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     else{
         $level      = 0;
     }
+    // manage via levels
+    /*
+    level 0     = not registered
+    level 1     = home menu
+    level 2     = request name
+    level 3     = request age
+    */
     switch ($level) {
-        case 0:       
+        case 0:
+        //unregistered user     
         if($userResponse==""){
             $response = UnregisteredWelcomeScreen();
         }
         elseif($userResponse=="1"){
+            //always update level to avoid serving the same menu
             $sqlLev1 = "INSERT INTO `session_levels`(`sessionId`, `phoneNumber`,`level`) VALUES('".$sessionId."','".$phoneNumber."', 1)";
             $conn->query($sqlLev1);
             $response = RegisterUser();
         }
         elseif($userResponse=="2"){
-            $sqlLev2 = "INSERT INTO `session_levels`(`sessionId`, `phoneNumber`,`level`) VALUES('".$sessionId."','".$phoneNumber."', 2)";
-            $conn->query($sqlLev2);
+            $response = "END Good-Bye";
         }
         else{
             header('Content-type: text/plain');
@@ -45,62 +53,107 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
         break;
         
         case 1:
-        $sqlLev3 = "UPDATE `session_levels` SET `level` = '3' WHERE `phonenumber` = '$phoneNumber'";
-        $conn->query($sqlLev3);
-        if (returnExists('users', $levelFetch) == 0 && getByValue('users','name',$levelFetch)==""){
-            if ($userResponse!=""){
-                $sqlReg2     = "INSERT INTO `users`(`name`,`phonenumber`) VALUES ('".$userResponse."','".$phoneNumber."')";
-                $conn      ->query($sqlReg2);
-                $name      =getByValue('users','name',$levelFetch);
-                $response  =RegisterdUserWelcomeScreen($name);
+        $sqlLev2 = "UPDATE `session_levels` SET `level` = '2' WHERE `phonenumber` = '$phoneNumber'";
+        $conn->query($sqlLev2);
+        if ($userResponse==""){
+            $name     =getByValue('users','name',$levelFetch);
+            if (strlen($name)==0){
+                $sqlLev0 = "UPDATE `session_levels` SET `level` = '0' WHERE `phonenumber` = '$phoneNumber'";
+                $conn->query($sqlLev0);
+                $response = "END Something went wrong please try again";
             }
             else{
-                $response = RegisterUser();
-            }           
+                $response = RegisterdUserWelcomeScreen($name);
+            }
         }
         else{
+            $sqlReg2     = "INSERT INTO `users`(`name`,`phonenumber`) VALUES ('".$userResponse."','".$phoneNumber."')";
+            $conn      ->query($sqlReg2);
             $name      =getByValue('users','name',$levelFetch);
             $response  =RegisterdUserWelcomeScreen($name);
         }
         break;
 
         case 2:
-        $name      =getByValue('users','name',$levelFetch);
-        $response = ExitRegisteredUser($name);
-        break;
-        
-        case 3:
-        if (returnExists('users', $levelFetch) == 0){
-            if ($userResponse!=0){
-                $sql1     = "INSERT INTO `users`(`name`,`phonenumber`) VALUES ('".$userResponse."','".$phoneNumber."')";
-                $conn      ->query($sql1);
-                $response  =RegisterdUserWelcomeScreen($name);
+        $sqlLev3 = "UPDATE `session_levels` SET `level` = '3' WHERE `phonenumber` = '$phoneNumber'";
+        $conn->query($sqlLev3);
+        if ($userResponse==""){
+            $name     =getByValue('users','name',$levelFetch);
+            if (strlen($name)==0){
+                $sqlLev0 = "UPDATE `session_levels` SET `level` = '0' WHERE `phonenumber` = '$phoneNumber'";
+                $conn->query($sqlLev0);
+                $response = "END Something went wrong please try again";
             }
             else{
-                $response  =RegisterUser();
+                $response = RegisterdUserWelcomeScreen($name);
             }
         }
-        elseif (returnExists('users', $levelFetch) > 0 && getByValue('users','name',$levelFetch)=="") {
-            $sqlreg = "UPDATE `users` SET `name` = '$userResponse' WHERE `phonenumber` = '$phoneNumber'";
-            $conn->query($sqlreg);
+        elseif($userResponse=="1"){
+            $response = accountInformation();
+        }
+        elseif($userResponse=="2"){
+            $response=phoneNumber($phoneNumber);
+        }
+
+        elseif($userResponse=="3"){
+            $response=editName();
+        }
+        else{
+            $response ="CON Ooops!!! Something went wrong";
+        }
+        break;
+
+        case 3:
+        $sqlLev4 = "UPDATE `session_levels` SET `level` = '4' WHERE `phonenumber` = '$phoneNumber'";
+        $conn->query($sqlLev4);
+        if ($userResponse==""){
+            $name      =getByValue('users','name',$levelFetch);
+            $response  =RegisterdUserWelcomeScreen($name);
+        }
+        elseif($userResponse=="1"){
+            $accountNumber  = "AC521254";
+            $response = "END Your account number is $accountNumber";
+        }
+        elseif($userResponse=="2"){
+            $balance  = "KES 10,000";
+            $response = "END Your balance is $balance";
+        }
+        elseif(strlen($userResponse)>2){
+            $sqlLev3 = "UPDATE `session_levels` SET `level` = '3' WHERE `phonenumber` = '$phoneNumber'";
+            $conn->query($sqlLev3);
+            $sqlname = "UPDATE `users` SET `name` = '$userResponse' WHERE `phonenumber` = '$phoneNumber'";
+            $conn->query($sqlname);
             $name      =getByValue('users','name',$levelFetch);
             $response  =RegisterdUserWelcomeScreen($name);
         }
         else{
+            $response ="CON Ooops!!! Something went wrong";
+        }
+        break;
+
+        case 4:
+        $response = "CON Welcome back press\n";
+        $response .= "1. To proceed \n";
+        $response .= "2. To exit \n";
+        if($userResponse=="1"){
+            $sqlLev4 = "UPDATE `session_levels` SET `level` = '2' WHERE `phonenumber` = '$phoneNumber'";
+            $conn->query($sqlLev4);
             $name      =getByValue('users','name',$levelFetch);
             $response  =RegisterdUserWelcomeScreen($name);
         }
-        break;        
-        
-        default:
-        $response = "END Oops, something isn't right... \n";
+        elseif($userResponse=="2"){
+            $response="END Good-bye $name\n";
+        }
         break;
 
-
+        default:
+        $response = "END Oops, something isn't right... \n";
     }
-
     header('Content-type: text/plain');
-    echo $response;	
-
+    echo $response;
 }
 ?>
+
+
+
+
