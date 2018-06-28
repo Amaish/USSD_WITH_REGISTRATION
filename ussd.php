@@ -142,6 +142,7 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
             $response  =RegisterdUserWelcomeScreen($name);
         }
         elseif($userResponse=="2"){
+            $name      =getByValue('users','name',$levelFetch);
             $response="END Good-bye $name\n";
         }
         break;
@@ -153,7 +154,3 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     echo $response;
 }
 ?>
-
-
-
-
