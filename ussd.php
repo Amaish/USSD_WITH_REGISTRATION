@@ -27,9 +27,8 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     // manage via levels
     /*
     level 0     = not registered
-    level 1     = home menu
-    level 2     = request name
-    level 3     = request age
+    level 1     = registered User welcome screen
+    and so on and so forth
     */
     switch ($level) {
         case 0:
