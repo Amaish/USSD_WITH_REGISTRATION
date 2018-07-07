@@ -16,6 +16,7 @@ if(!empty($_POST) && !empty($_POST['phoneNumber'])){
     $userResponse=trim(end($textArray));
 
     $levelFetch = array('phonenumber'=>$phoneNumber);
+	// test on windows
 
     //fetch level from DB
     if(returnExists('session_levels', $levelFetch) > 0){
